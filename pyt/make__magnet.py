@@ -21,7 +21,7 @@ def make__magnet():
     # ------------------------------------------------- #
     # --- [2] Modeling                              --- #
     # ------------------------------------------------- #
-    make_model = False
+    make_model = True
     if ( make_model ):
         side = "+"
         import generate__magnetParts as mag
@@ -29,10 +29,20 @@ def make__magnet():
     else:
         stpFile = "msh/model.step"
         gmsh.model.occ.importShapes( stpFile )
+
+    import define__ports as dfp
+    inpFile = "dat/ports.conf"
+    tools   = dfp.define__ports( inpFile=inpFile )
+    tools   = [ (3,tool) for tool in tools ]
+    gmsh.model.occ.synchronize()
+    targets = [ (3,int(target)) for target in const["cut__target"] ]
+    gmsh.model.occ.cut( targets, tools, removeObject=False, removeTool=True )
+    gmsh.model.occ.synchronize()
+
     gmsh.model.occ.synchronize()
     gmsh.model.occ.removeAllDuplicates()
     gmsh.model.occ.synchronize()
-    
+
     # ------------------------------------------------- #
     # --- [3] Mesh settings                         --- #
     # ------------------------------------------------- #
